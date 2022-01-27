@@ -669,17 +669,29 @@ class JigglesAndJoints : MVRScript
             {
                 if (st["id"].ToString().Equals("\"" + this.containingAtom.subScenePath.TrimEnd('/') + "\""))
                 {
+
                     foreach (JSONNode subSt in st["storables"].Childs)
                     {
+
                         if (subSt["id"].ToString().Equals("\"" + this.containingAtom.containingSubScene.storeId + "\""))
                         {
                             pluginJson = subSt.AsObject;
                             ssPath = subSt["storePath"];
+
                             break;
                         }
                     }
                     break;
                 }
+            }
+
+            //if ss path!=null and it doesn't contain a / it means its just been made.. have to goto the UI to get where.
+
+            if (ssPath != null && !ssPath.Contains("/"))
+            {
+                SubScene subSceneComp = this.containingAtom.containingSubScene;
+                SubSceneUI subSceneUI = subSceneComp.UITransform.GetComponentInChildren<SubSceneUI>();
+                ssPath = "Custom/SubScene/" + subSceneUI.creatorNameInputField.text + "/" + subSceneUI.signatureInputField.text + "/" + ssPath;
             }
 
             if (ssPath != null && ssPath.Contains("/"))
@@ -691,7 +703,7 @@ class JigglesAndJoints : MVRScript
                 }
                 catch (Exception e)
                 {
-                    SuperController.LogError("Unable to load stored JSON: " + ssPath);
+                    SuperController.LogMessage("Unable to load stored JSON: " + ssPath);
                 }
 
                 if (pluginJson != null)
